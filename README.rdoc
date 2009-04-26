@@ -30,7 +30,10 @@ This migration command will perform the following against <table_name>:
 
 == Coming Soon
 
-Next up will be extensions for ActiveRecord::Base to allow easily searching against the full text indexes in your rails models.
+* Extensions for ActiveRecord::Base to allow easily searching against the full text indexes in your rails models.
+* Addition of a configuration column for language so tables may hold records in multiple languages and still be indexed properly
+* drop_gin_index for removing the index, columns and trigger, for down migrations
+* Support for gist indexes in addition to gin
 
 == License
 
