@@ -1,0 +1,38 @@
+
+== Distilled Gin
+
+Distilled Gin is a rails plugin that is an extension of ActiveRecord::Base and ActiveRecord::Migration for working with PostgreSQL's full text search engine.  
+
+== What's New
+
+* Initial release - adds "add_gin_index" support to ActiveRecord::Migration (explained below)
+
+== Usage
+
+class AddGin < ActiveRecord::Migration 
+  def self.up 
+    add_gin_index <table_name>, <column_1>, <column2>
+  end 
+ 
+  def self.down 
+  end 
+end
+
+==== What this does:
+
+(Please see the PostgreSQL Full Text Search documentation at http://www.postgresql.org/docs/8.3/static/textsearch.html)
+
+This migration command will perform the following against <table_name>:
+* Add a column named <table_name>_tsv_idx of type tsvector to <table_name>.
+* Update the column to hold the output of a concatenation of to_tsvector run against all columns in the column list.
+* Create a gin index against the tsvector column.
+* Add an update trigger to the table to keep the tsvector column up to date 
+
+== Coming Soon
+
+Next up will be extensions for ActiveRecord::Base to allow easily searching against the full text indexes in your rails models.
+
+== License
+
+Copyright by Brian Knox, 2009. It is free software, and may be redistributed under the terms specified in the MIT-LICENSE file.
+
