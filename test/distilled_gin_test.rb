@@ -52,4 +52,16 @@ class PostGinTest < Test::Unit::TestCase
     create_tsv_trigger(:test_trigger_name, :test_table_name, :test_idx_col,  create_tsv_col_list([:test_col1, :test_col2]))
   end
 
+  def test_drop_tsv_trigger
+    assert_equal "DROP TRIGGER IF EXISTS test_trigger_name ON test_table_name", drop_tsv_trigger(:test_trigger_name, :test_table_name)
+  end
+  
+  def test_drop_gin_index
+    assert_equal "DROP INDEX IF EXISTS test_idx_name", drop_gin_index(:test_idx_name)
+  end
+
+  def test_drop_tsv_column
+    assert_equal "ALTER TABLE test_table DROP COLUMN test_idx_col", drop_tsv_column(:test_table, :test_idx_col)
+  end
+
 end
