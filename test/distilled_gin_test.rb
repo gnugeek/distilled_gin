@@ -32,14 +32,14 @@ class PostGinTest < Test::Unit::TestCase
       create_tsv_col_list([:test_col1, :test_col2, :test_col3])
   end
 
-  def test_alter_table_add_column
+  def test_add_tsv_column
     assert_equal "ALTER TABLE test_table ADD COLUMN test_col tsvector",
-      alter_table_add_column(:test_table, :test_col)
+      add_tsv_column(:test_table, :test_col)
   end
 
-  def test_update_table_set_column
+  def test_update_tsv_column
     assert_equal "UPDATE test_table SET idx_col = to_tsvector('english', coalesce(test_col1,'') || coalesce(test_col2,''))",
-      update_table_set_column(:test_table, :idx_col, create_tsv_col_list([:test_col1, :test_col2]))
+      update_tsv_column(:test_table, :idx_col, create_tsv_col_list([:test_col1, :test_col2]))
   end
 
   def test_create_gin_index
@@ -47,9 +47,9 @@ class PostGinTest < Test::Unit::TestCase
       create_gin_index(:test_idx_name, :test_table, :test_col)
   end
 
-  def test_create_tsvector_update_trigger
+  def test_create_tsv_trigger
     assert_equal "CREATE TRIGGER test_trigger_name BEFORE INSERT OR UPDATE ON test_table_name FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger(test_idx_col, 'pg_catalog.english', coalesce(test_col1,'') || coalesce(test_col2,''))",
-    create_tsvector_update_trigger(:test_trigger_name, :test_table_name, :test_idx_col,  create_tsv_col_list([:test_col1, :test_col2]))
+    create_tsv_trigger(:test_trigger_name, :test_table_name, :test_idx_col,  create_tsv_col_list([:test_col1, :test_col2]))
   end
 
 end

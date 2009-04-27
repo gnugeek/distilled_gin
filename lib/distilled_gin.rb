@@ -7,10 +7,10 @@ module DistilledGinMigrations
     tsv_cols_coalesce = create_tsv_col_list(tsv_cols)
     tsv_cols_list = tsv_cols.join(',')
 
-    exec_stmt alter_table_add_column(tsv_table, tsv_idx_col)
-    exec_stmt update_table_set_column(tsv_table, tsv_idx_col, tsv_cols_coalesce)
+    exec_stmt add_tsv_column(tsv_table, tsv_idx_col)
+    exec_stmt update_tsv_column(tsv_table, tsv_idx_col, tsv_cols_coalesce)
     exec_stmt create_gin_index(tsv_idx, tsv_table, tsv_idx_col)
-    exec_stmt create_tsvector_update_trigger(tsv_trigger, tsv_table, tsv_idx_col, tsv_cols_list)
+    exec_stmt create_tsv_trigger(tsv_trigger, tsv_table, tsv_idx_col, tsv_cols_list)
   end
 
   private
@@ -31,11 +31,11 @@ module DistilledGinMigrations
     column_list = columns.map { |col| "coalesce(#{col},'')" }.join(' || ')
   end
 
-  def alter_table_add_column(tsv_table,tsv_idx_col)
+  def add_tsv_column(tsv_table,tsv_idx_col)
     "ALTER TABLE #{tsv_table} ADD COLUMN #{tsv_idx_col} tsvector"
   end
 
-  def update_table_set_column(tsv_table, tsv_idx_col, tsv_cols_coalesce)
+  def update_tsv_column(tsv_table, tsv_idx_col, tsv_cols_coalesce)
     "UPDATE #{tsv_table} SET #{tsv_idx_col} = to_tsvector('english', #{tsv_cols_coalesce})"
   end
 
@@ -43,7 +43,7 @@ module DistilledGinMigrations
     "CREATE INDEX #{tsv_idx} ON #{tsv_table} USING gin(#{tsv_idx_col})"
   end
 
-  def create_tsvector_update_trigger(tsv_trigger, tsv_table, tsv_idx_col, tsv_cols_list)
+  def create_tsv_trigger(tsv_trigger, tsv_table, tsv_idx_col, tsv_cols_list)
     "CREATE TRIGGER #{tsv_trigger} BEFORE INSERT OR UPDATE ON #{tsv_table} FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger(#{tsv_idx_col}, 'pg_catalog.english', #{tsv_cols_list})" 
   end
 
