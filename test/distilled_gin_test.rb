@@ -15,6 +15,10 @@ class PostGinTest < Test::Unit::TestCase
     assert_nothing_raised { add_gin_index(:test_table, :test_col1, :test_col2) }
   end
 
+  def test_remove_gin_index
+    assert_nothing_raised { remove_gin_index(:test_table) }
+  end
+
   def test_create_tsv_idx_col_name
     assert_equal "test_table_tsv_idx", create_tsv_idx_col_name(:test_table)
   end
