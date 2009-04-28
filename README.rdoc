@@ -36,6 +36,7 @@ This migration is fully reversable with remove_gin_index <table_name>.
 * Extensions for ActiveRecord::Base to allow easily searching against the full text indexes in your rails models.
 * Addition of a configuration column for language so tables may hold records in multiple languages and still be indexed properly
 * Support for gist indexes in addition to gin
+* Migration commands for full text search configuration ( see http://www.postgresql.org/docs/8.3/static/textsearch-configuration.html )
 
 == License
 
