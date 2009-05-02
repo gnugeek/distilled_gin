@@ -10,7 +10,7 @@ module DistilledGin
       klass.class_eval do
         named_scope :with_gin, lambda { |search_string|
           if search_string.blank?
-          return {}
+            return {}
           else
             { :conditions => "#{table_name}_tsv_idx @@ to_tsquery('#{search_string}')" }
           end
