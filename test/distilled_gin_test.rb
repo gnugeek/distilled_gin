@@ -2,14 +2,14 @@ require File.dirname(__FILE__) + '/../lib/distilled_gin.rb'
 require 'test/unit'
 require 'rubygems'
 
-module DistilledGinMigrations
+module DistilledGin::MigrationExtensions
   def exec_stmt(stmt)
     stmt
   end
 end
 
 class PostGinTest < Test::Unit::TestCase
-  include DistilledGinMigrations
+  include DistilledGin::MigrationExtensions
 
   def test_add_gin_index
     assert_raise ArgumentError do 
