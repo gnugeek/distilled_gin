@@ -1,6 +1,6 @@
 module DistilledGin
   module ActiveRecordExtensions
-    def is_distilled_gin(opts={})
+    def is_distillable(opts={})
       include DistilledGin::NamedScopes
     end
   end
