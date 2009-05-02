@@ -1,72 +1,83 @@
 module DistilledGinMigrations
 
-  def add_gin_index(tsv_table, *tsv_cols)
-    tsv_idx_col = create_tsv_idx_col_name(tsv_table)
-    tsv_trigger = create_tsv_trigger_name(tsv_table)
-    tsv_idx = create_tsv_idx_name(tsv_table)
-    tsv_cols_coalesce = create_tsv_col_list(tsv_cols)
-    tsv_cols_list = tsv_cols.join(',')
+  def add_gin_index(opts={})
+    raise ArgumentError, "add_gin_index requires option :table" unless opts[:table]
+    raise ArgumentError, "add_gin_index requires option :columns" unless opts[:columns]
+    raise ArgumentError, "add_gin_index requires option :table to be a symbol" unless opts[:table].class == Symbol
+    raise ArgumentError, "add_gin_index requires :columns option to be a non empty array columns" unless opts[:columns].class == Array
+    
+    table_name        = opts[:table]
+    columns_array     = opts[:columns]
+    index_column      = generate_index_column_name(table_name)
+    trigger_name      = generate_trigger_name(table_name)
+    index_name        = generate_index_name(table_name)
+    columns_coalesced = generate_columns_coalesced(columns_array)
+    columns_list      = columns_array.join(',')
 
-    exec_stmt add_tsv_column(tsv_table, tsv_idx_col)
-    exec_stmt update_tsv_column(tsv_table, tsv_idx_col, tsv_cols_coalesce)
-    exec_stmt create_gin_index(tsv_idx, tsv_table, tsv_idx_col)
-    exec_stmt create_tsv_trigger(tsv_trigger, tsv_table, tsv_idx_col, tsv_cols_list)
+    exec_stmt add_index_column(table_name, index_column)
+    exec_stmt update_index_column(table_name, index_column, columns_coalesced)
+    exec_stmt create_gin_index(table_name, index_name, index_column)
+    exec_stmt create_trigger(table_name, trigger_name, index_column, columns_list)
   end
 
-  def remove_gin_index(tsv_table)
-    tsv_trigger = create_tsv_trigger_name(tsv_table)
-    tsv_idx = create_tsv_idx_name(tsv_table)
-    tsv_idx_col = create_tsv_idx_col_name(tsv_table)
+  def remove_gin_index(opts={})
+    raise ArgumentError, "remove_gin_index requires option :table" unless opts[:table]
+   
+    table_name = opts[:table]
+
+    trigger_name = generate_trigger_name(table_name)
+    index_name = generate_index_name(table_name)
+    index_column = generate_index_column_name(table_name)
     
-    exec_stmt drop_tsv_trigger(tsv_trigger, tsv_table)
-    exec_stmt drop_gin_index(tsv_idx)
-    exec_stmt drop_tsv_column(tsv_table, tsv_idx_col)
+    exec_stmt drop_trigger(table_name, trigger_name)
+    exec_stmt drop_gin_index(index_name)
+    exec_stmt drop_index_column(table_name, index_column)
   end
 
   private
-  
-  def create_tsv_idx_col_name(tsv_table)
-    "#{tsv_table}_tsv_idx"
+
+  def generate_index_column_name(table_name)
+    "#{table_name}_tsv_idx"
   end
 
-  def create_tsv_trigger_name(tsv_table)
-    "#{tsv_table}_tsv_trigger"
+  def generate_trigger_name(table_name)
+    "#{table_name}_tsv_trigger"
   end
 
-  def create_tsv_idx_name(tsv_table)
-    "#{tsv_table}_tsv_idx"
+  def generate_index_name(table_name)
+    "#{table_name}_tsv_idx"
   end
 
-  def create_tsv_col_list(columns)
-    column_list = columns.map { |col| "coalesce(#{col},'')" }.join(' || ')
+  def generate_columns_coalesced(columns_array)
+    columns_array.map { |col| "coalesce(#{col},'')" }.join(' || ')
   end
 
-  def add_tsv_column(tsv_table,tsv_idx_col)
-    "ALTER TABLE #{tsv_table} ADD COLUMN #{tsv_idx_col} tsvector"
+  def add_index_column(table_name, index_column)
+    "ALTER TABLE #{table_name} ADD COLUMN #{index_column} tsvector"
   end
 
-  def drop_tsv_column(tsv_table, tsv_idx_col)
-    "ALTER TABLE #{tsv_table} DROP COLUMN #{tsv_idx_col}"
+  def drop_index_column(table_name, index_column)
+    "ALTER TABLE #{table_name} DROP COLUMN #{index_column}"
   end
 
-  def update_tsv_column(tsv_table, tsv_idx_col, tsv_cols_coalesce)
-    "UPDATE #{tsv_table} SET #{tsv_idx_col} = to_tsvector('english', #{tsv_cols_coalesce})"
+  def update_index_column(table_name, index_column, columns_coalesced)
+    "UPDATE #{table_name} SET #{index_column} = to_tsvector('english', #{columns_coalesced})"
   end
 
-  def create_gin_index(tsv_idx, tsv_table, tsv_idx_col)
-    "CREATE INDEX #{tsv_idx} ON #{tsv_table} USING gin(#{tsv_idx_col})"
+  def create_gin_index(table_name, index_name, index_column)
+    "CREATE INDEX #{index_name} ON #{table_name} USING gin(#{index_column})"
   end
 
-  def drop_gin_index(tsv_idx)
-    "DROP INDEX IF EXISTS #{tsv_idx}"
+  def drop_gin_index(index_name)
+    "DROP INDEX IF EXISTS #{index_name}"
   end
 
-  def create_tsv_trigger(tsv_trigger, tsv_table, tsv_idx_col, tsv_cols_list)
-    "CREATE TRIGGER #{tsv_trigger} BEFORE INSERT OR UPDATE ON #{tsv_table} FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger(#{tsv_idx_col}, 'pg_catalog.english', #{tsv_cols_list})" 
+  def create_trigger(table_name, trigger_name, index_column, columns_list)
+    "CREATE TRIGGER #{trigger_name} BEFORE INSERT OR UPDATE ON #{table_name} FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger(#{index_column}, 'pg_catalog.english', #{columns_list})" 
   end
 
-  def drop_tsv_trigger(tsv_trigger, tsv_table)
-    "DROP TRIGGER IF EXISTS #{tsv_trigger} ON #{tsv_table}"
+  def drop_trigger(table_name, trigger_name)
+    "DROP TRIGGER IF EXISTS #{trigger_name} ON #{table_name}"
   end
 
   def exec_stmt(stmt)
