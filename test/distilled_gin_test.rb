@@ -12,10 +12,26 @@ class PostGinTest < Test::Unit::TestCase
   include DistilledGinMigrations
 
   def test_add_gin_index
+    assert_raise ArgumentError do 
+      add_gin_index 
+    end
+    
+    assert_raise ArgumentError do
+      add_gin_index :table => :test_table
+    end
+    
+    assert_raise ArgumentError do 
+      add_gin_index :columns => [:test_col1, :test_col2] 
+    end
+
     assert_nothing_raised { add_gin_index :table => :test_table, :columns => [:test_col1, :test_col2] }
   end
 
   def test_remove_gin_index
+    assert_raise ArgumentError do
+      remove_gin_index
+    end
+
     assert_nothing_raised { remove_gin_index :table => :test_table }
   end
 

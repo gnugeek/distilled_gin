@@ -1,10 +1,10 @@
 module DistilledGinMigrations
 
   def add_gin_index(opts={})
-    raise ArgumentError, "add_gin_index requires option :table" unless opts[:table]
-    raise ArgumentError, "add_gin_index requires option :columns" unless opts[:columns]
-    raise ArgumentError, "add_gin_index requires option :table to be a symbol" unless opts[:table].class == Symbol
-    raise ArgumentError, "add_gin_index requires :columns option to be a non empty array columns" unless opts[:columns].class == Array
+    raise ArgumentError unless opts[:table]
+    raise ArgumentError unless opts[:columns]
+    raise ArgumentError unless opts[:table].class == Symbol
+    raise ArgumentError unless opts[:columns].class == Array
     
     table_name        = opts[:table]
     columns_array     = opts[:columns]
@@ -21,7 +21,7 @@ module DistilledGinMigrations
   end
 
   def remove_gin_index(opts={})
-    raise ArgumentError, "remove_gin_index requires option :table" unless opts[:table]
+    raise ArgumentError unless opts[:table]
    
     table_name = opts[:table]
 
