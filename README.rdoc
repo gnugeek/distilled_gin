@@ -21,7 +21,7 @@ Distilled Gin is a rails plugin that is an extension of ActiveRecord::Base and A
     end
  
     def self.down 
-      remove_gin_index :table => 'model_name
+      remove_gin_index :table => :table_name
     end 
   end
 
