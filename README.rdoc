@@ -6,7 +6,7 @@ Distilled Gin is a rails plugin that is an extension of ActiveRecord::Base and A
 == What's New
 
 * Initial release - adds "add_gin_index" support to ActiveRecord::Migration (explained below)
-
+* 2009-05-2 - adds "is_distillable" extension to ActiveRecord::Base to provide tsquery search support
 == Install
 
 *  ./script/plugin install git://github.com/gnugeek/distilled_gin.git  
