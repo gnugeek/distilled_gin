@@ -13,13 +13,15 @@ Distilled Gin is a rails plugin that is an extension of ActiveRecord::Base and A
 
 == Usage
 
+=== Adding a gin full text index to a model
+
   class AddGin < ActiveRecord::Migration
     def self.up
-      add_gin_index :model => :model_name, :columns => [:col1, :col2, :col3]
+      add_gin_index :table => :table_name, :columns => [:col1, :col2, :col3]
     end
  
     def self.down 
-      remove_gin_index :model => 'model_name
+      remove_gin_index :table => 'model_name
     end 
   end
 
@@ -35,12 +37,15 @@ This migration command will perform the following against <table_name>:
 
 This migration is fully reversable with remove_gin_index <table_name>.
 
-== Coming Soon
+=== Searching for a model using the gin full text index
 
-* Extensions for ActiveRecord::Base to allow easily searching against the full text indexes in your rails models.
-* Addition of a configuration column for language so tables may hold records in multiple languages and still be indexed properly
-* Support for gist indexes in addition to gin
-* Migration commands for full text search configuration ( see http://www.postgresql.org/docs/8.3/static/textsearch-configuration.html )
+  class MyModel < ActiveRecord::Base
+    is_distillable
+  end
+
+  MyModel.with_tsquery('foo').find_all
+  MyModel.with_tsquery('foo & bar').find_all
+  MyModel.with_tsquery('(foo | bar) & baz').find_all
 
 == License
 

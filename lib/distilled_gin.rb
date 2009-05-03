@@ -8,7 +8,7 @@ module DistilledGin
   module NamedScopes
     def self.included(klass)
       klass.class_eval do
-        named_scope :with_gin, lambda { |search_string|
+        named_scope :with_tsquery, lambda { |search_string|
           if search_string.blank?
             return {}
           else

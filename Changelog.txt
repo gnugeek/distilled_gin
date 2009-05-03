@@ -1,2 +1,5 @@
 2009-04-24 Brian Knox <gnutse@gmail.com>
 * Initial release
+
+2009-05-02 Brian Knox <gnutse@gmail.com>
+* Support for searching for records using tsquery syntax
